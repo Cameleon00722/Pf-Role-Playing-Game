@@ -53,7 +53,71 @@ let rec afficher_contenu_sac = fun sac ->
       afficher_contenu_sac tl
   |{item=i; quantite= q}::tl-> afficher_contenu_sac tl;;
 exception No_food 
+    (*affichage du sac *)
+      (*ligne de séparation*)
+      let rec iterate : (int * ('a->'a) * 'a) -> 'a =
+  fun (count, f, initial_value) ->
+    if count <= 0
+    then initial_value
+    else iterate (count-1, f, f initial_value)
+let repeat_string= fun (s,n) -> iterate (n, (fun s1->s^s1),"")
+let enclosing=  fun s -> iterate (1, (fun s1->"+"^s^"+ \n"),s)
+let end_line = fun s-> iterate (1, (fun s1->s^"\n"),s)
+let separation= fun s->
+  end_line(enclosing (repeat_string (s, 29)))
+  (*ligne 1*)
+  let classe_genree = fun perso ->
+  if perso.genre= Male
+  then match perso.classe with
+    | Guerrier -> "Guerrier"
+    | Archer -> "Archer"
+    | Magicien -> "Magicien"
+  else match perso.classe with
+    | Guerrier -> "Guerrière"
+    | Archer -> "Archère"
+    | Magicien -> "Magicienne" ;;
+let ligne_1 = fun perso ->
+  "| "^perso.nom^" | "^(classe_genree perso)^"  niveau  "^(string_of_int perso.niveau)^"  |"
+      (*ligne 2*)
+let ligne_2= fun perso ->
+  "| Points de vie       |    "^(string_of_int perso.pv)^" |";;
+    (* ligne 3*)
+let ligne_3= fun perso ->
+  "| Expérience          |     "^(string_of_int perso.exp)^" |";;
+  (*ligne 4*)
+  (*les geetteurs*)
+let rec get_nb_poulet = fun sac ->
+match sac with 
+|[]-> 0
+|{item=Cuisse_poulet; quantite=q}::_->q
+|{item=_; quantite=_}::tl-> get_nb_poulet tl ;;
+let rec get_nb_piece = fun sac ->
+match sac with 
+|[]-> 0
+|{item=Piece; quantite=q}::_->q
+|{item=_; quantite=_}::tl-> get_nb_piece tl ;;
+let rec get_nb_eponge = fun sac ->
+match sac with 
+|[]-> 0
+|{item=Eponge; quantite=q}::_->q
+|{item=_; quantite=_}::tl-> get_nb_eponge tl ;;
 
+let ligne_4 = fun perso ->
+  "| Sac                         |\n"
+  ^"| "^string_of_int (get_nb_eponge perso.sac)^" éponges                   |\n"
+  ^"| "^string_of_int (get_nb_poulet perso.sac)^" poulets                   |\n"
+  ^"| "^string_of_int (get_nb_piece perso.sac)^" pièces                    |\n" ;;
+  (*affichage total*)
+  let affichage_etat_perso = fun perso ->
+  print_string (separation "-");
+  print_string (end_line(ligne_1 perso));
+  print_string (separation "-");
+  print_string (end_line(ligne_2 perso));
+  print_string (separation "-");
+  print_string (end_line(ligne_3 perso));
+  print_string (separation "-");
+  print_string (end_line(ligne_4 perso));
+  print_string (separation "-");;
 
 let frapper  = fun perso -> match perso.classe with
   | Guerrier -> if(Random.int 100 <30+perso.niveau*5) then 10 else 0
