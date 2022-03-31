@@ -101,6 +101,15 @@ match sac with
 |[]-> 0
 |{item=Eponge; quantite=q}::_->q
 |{item=_; quantite=_}::tl-> get_nb_eponge tl ;;
+(*affchage mabger*)
+let get_msg_manger=fun bo->
+  match bo with 
+  | true->  "Vous mangez 1 poulet et gagnez 2 points de vie";
+  |false->  "Vous n'avez pas de poulet" ;;
+
+let get_1 (a,_) = a;;
+let afficher_msg_manger= fun perso->
+  get_msg_manger (get_1 (manger perso));;
 
 let ligne_4 = fun perso ->
   "| Sac                         |\n"
