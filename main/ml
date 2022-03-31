@@ -128,6 +128,38 @@ let frapper_monstre = fun monstre -> match monstre.nom with
   | Golem -> 4
   | Nuee_de_moustiques -> 1/2*monstre.nombre
   | Sanglier -> 2;;
+(*manger*)
+(*pour voir si le perso a du poulet*)
+ let rec manger_aux =fun sac->
+  match sac with
+  |[]->false
+  |{item=i; quantite=q}::tl when i=Cuisse_poulet-> if q>0
+      then true
+      else false
+  |{item=i; quantite=q}::tl-> manger_aux tl ;;
+(*pour décrémenter le nb de poulet*)
+let rec manger_poulet = fun sac ->
+  match sac with
+  |[]->[]
+  |{item=i; quantite=q}::tl when i=Cuisse_poulet->{item=i; quantite=q-1}:: manger_poulet tl
+  |{item=i; quantite=q}::tl-> {item=i; quantite=q}::manger_poulet tl ;
+      let update_pv =fun perso n ->
+        perso.pv<-perso.pv+n ;;
+ (*pour voir si le perso a du poulet*)
+ let rec manger_aux =fun sac->
+  match sac with
+  |[]->false
+  |{item=i; quantite=q}::tl when i=Cuisse_poulet-> if q>0
+      then true
+      else false
+  |{item=i; quantite=q}::tl-> manger_aux tl ;;
+
+let manger= fun perso ->
+  if (manger_aux perso.sac)
+  then if perso.pv<20
+    then (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+2; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac)})
+else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac)})
+else (false,perso)
 
 (* Appel et lanceur *)
 
