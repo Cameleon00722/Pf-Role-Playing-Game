@@ -161,6 +161,43 @@ let manger= fun perso ->
     else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac)})
   else (false,perso);;
 
+
+(* combat *)
+
+let passer_niveau_sup : int -> int -> bool= fun pv niv ->
+  if ((float_of_int pv)>=2.**(((float_of_int niv)+.1.))*.10.) then true else false;;
+
+
+
+let rec combien_coup_achever_perso : monstre -> int -> int = fun m pv -> 
+  if(pv<=0) then 0 else (combien_coup_achever_perso m (pv-frapper_monstre m ))+1;;
+
+let rec combien_coup_achever_monstre : personnage -> int -> int = fun p pv ->
+  if(pv<=0) then 0 else (combien_coup_achever_monstre p (pv-frapper p))+1;;
+  
+let min = fun a b ->
+  if(a>=b) then b else a ;;
+
+
+let combattre : personnage -> monstre -> personnage = fun p m -> match m.nom with
+  | Golem -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
+       
+        {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=a; 
+         niveau=b ; sac=p.sac@[{ item=m.loot; quantite=1}]}
+        
+        
+  | Nuee_de_moustiques ->let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
+       
+        {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 2; 
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]}
+        
+        
+  | Sanglier -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
+       
+        {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 4; 
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]};;
+
+
 (* Appel et lanceur *)
 
 let mon_monstre = {nom=Golem; pv = 25 ; attaque = 1 ; loot= Eponge ; nombre = 100000};;
