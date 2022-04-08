@@ -12,23 +12,27 @@ type quantite = int ;;
 type items = { item: item; quantite: quantite} ;;
 
 
-type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list} ;;
+type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list; speed : int} ;;
 
-type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list}
+type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list; speed : int}
 
-
+let speed_perso  = fun perso -> match perso.classe with
+  | Guerrier -> 5
+  | Archer -> 7
+  | Magicien -> 3
 
 (* partie monstre *)
 
-type type_de_monstre = | Golem | Nuee_de_moustiques | Sanglier
+type type_de_monstre = | Golem | Nuee_de_moustiques | Sanglier | Slime
 
 
-type monstre = {nom : type_de_monstre ; pv : int ; attaque : int ; loot : item; nombre : int};;
+type monstre = {nom : type_de_monstre ; pv : int ; attaque : int ; loot : item; nombre : int; speed :int };;
 
 let pv_monstre  = fun mstr -> match mstr.nom with
   | Golem -> mstr.pv + Random.int 6
   | Nuee_de_moustiques -> mstr.pv + Random.int 10
-  | Sanglier -> mstr.pv + Random.int 4;;
+  | Sanglier -> mstr.pv + Random.int 4
+  | Slime -> mstr.pv + Random.int 4;;
 
 
 (* Gameplay personnage *)
@@ -128,7 +132,9 @@ let frapper  = fun perso -> match perso.classe with
 let frapper_monstre = fun monstre -> match monstre.nom with
   | Golem -> 4
   | Nuee_de_moustiques -> 1/2*monstre.nombre
-  | Sanglier -> 2;;
+  | Sanglier -> 2
+  | Slime -> 8;;
+
 (*manger*)
 (*pour voir si le perso a du poulet*)
 let rec manger_aux =fun sac->
@@ -157,8 +163,8 @@ let rec manger_aux =fun sac->
 let manger= fun perso ->
   if (manger_aux perso.sac)
   then if perso.pv<20
-    then (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+2; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac)})
-    else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac)})
+    then (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+2; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed})
+    else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed})
   else (false,perso);;
 
 
@@ -182,26 +188,71 @@ let min = fun a b ->
 let combattre : personnage -> monstre -> personnage = fun p m -> match m.nom with
   | Golem -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
        
-        {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=a; 
-         niveau=b ; sac=p.sac@[{ item=m.loot; quantite=1}]}
+        {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=8; 
+         niveau=b ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed}
         
         
   | Nuee_de_moustiques ->let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
        
         {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 2; 
-         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]}
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed}
         
         
   | Sanglier -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
        
         {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 4; 
-         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]};;
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed}
+
+  | Slime -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
+       
+        {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 4; 
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed};;
+
+
+let rec fuir = fun sac ->
+  match sac with
+  |[]->[]
+  |{item=i; quantite=q}::tl when i=Piece->{item=i; quantite=q - Random.int q}:: fuir tl
+  |{item=i; quantite=q}::tl-> {item=i; quantite=q}::fuir tl ;;
+
+
+let generer_type_monstre = fun a -> match a with
+  | 0 -> Golem
+  | 1 -> Nuee_de_moustiques
+  | 2 -> Sanglier
+  | 3 -> Slime;;
+
+
+let generer_butin = fun a -> match a with
+  | 0 -> Eponge
+  | 1 -> Piece
+  | 2 -> Cuisse_poulet;;
+
+let generer_monstre_0 = 
+  {nom=(generer_type_monstre (Random.int 4)); pv = 0 ; attaque = 0 ; loot= (generer_butin (Random.int 3)) ; nombre = 0 ; speed = 0};;
+
+let generer_pv_loot_1 = fun mstr -> match mstr.nom with
+  | Golem ->  {nom=mstr.nom; pv = mstr.pv + Random.int 6 ; attaque = 0 ; loot= mstr.loot ; nombre = 1; speed = 2}
+  | Nuee_de_moustiques ->  {nom=mstr.nom; pv = mstr.pv +  1 * mstr.nombre ; attaque = 0 ; loot= mstr.loot ; nombre = Random.int 250; speed = 8}
+  | Sanglier ->  {nom=mstr.nom; pv = mstr.pv + Random.int 4 ; attaque = 0 ; loot= mstr.loot ; nombre = 1; speed = 4}
+  | Slime ->  {nom=mstr.nom; pv = mstr.pv + Random.int 4 ; attaque = 0 ; loot= mstr.loot ; nombre = 1; speed = 1};;
+
+let generer_attaque_2 = fun mstr -> match mstr.nom with
+  | Golem ->  {nom=mstr.nom; pv = mstr.pv ; attaque = 4 ; loot= mstr.loot ; nombre = mstr.nombre; speed = mstr.speed}
+  | Nuee_de_moustiques ->  {nom=mstr.nom; pv = mstr.pv ; attaque = 1/2*mstr.nombre ; loot= mstr.loot ; nombre = mstr.nombre; speed = mstr.speed}
+  | Sanglier ->  {nom=mstr.nom; pv = mstr.pv; attaque = 2 ; loot= mstr.loot ; nombre = mstr.nombre; speed = mstr.speed}
+  | Slime ->  {nom=mstr.nom; pv = mstr.pv; attaque = 7 ; loot= mstr.loot ; nombre = mstr.nombre;  speed = mstr.speed};;
+
+let generer_le_monstre =  ( generer_attaque_2(generer_pv_loot_1 generer_monstre_0 ));;
+
+let rencontre_malheureuse = fun perso ->
+  (combattre perso generer_le_monstre );;
 
 
 (* Appel et lanceur *)
 
-let mon_monstre = {nom=Golem; pv = 25 ; attaque = 1 ; loot= Eponge ; nombre = 100000};;
+let mon_monstre = {nom=Golem; pv = 25 ; attaque = 1 ; loot= Eponge ; nombre = 10; speed = 1};;
 
-let personnage = {nom = "Laur" ; classe = Guerrier ;  genre = Male  ; pv = 10 ; exp = 0; niveau = 0; sac = [] } ;;
+let personnage = {nom = "ani" ; classe = Guerrier ;  genre = Female  ; pv = 100000 ; exp = 0; niveau = 0; sac = []; speed = 1 } ;;
 
 affichage_etat_perso personnage;;
