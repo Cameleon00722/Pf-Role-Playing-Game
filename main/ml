@@ -151,14 +151,6 @@ let rec manger_poulet = fun sac ->
   |{item=i; quantite=q}::tl when i=Cuisse_poulet->{item=i; quantite=q-1}:: manger_poulet tl
   |{item=i; quantite=q}::tl-> {item=i; quantite=q}::manger_poulet tl ;;
 
- (*pour voir si le perso a du poulet*)
-let rec manger_aux =fun sac->
-  match sac with
-  |[]->false
-  |{item=i; quantite=q}::tl when i=Cuisse_poulet-> if q>0
-      then true
-      else false
-  |{item=i; quantite=q}::tl-> manger_aux tl ;;
 
 let manger= fun perso ->
   if (manger_aux perso.sac)
