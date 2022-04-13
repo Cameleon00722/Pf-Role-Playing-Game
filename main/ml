@@ -158,7 +158,15 @@ let manger= fun perso ->
     then (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+2; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed})
     else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed})
   else (false,perso);;
-
+let get_1 (a,_) = a
+(* pour l'affichage de manger*)
+let get_msg_manger=fun bo->
+  match bo with 
+  | true->  "Vous mangez 1 poulet et gagnez 2 points de vie";
+  |false->  "Vous n'avez pas de poulet" ;;
+  
+  let afficher_msg_manger= fun perso->
+get_msg_manger (get_1 (manger perso))
 
 (* combat *)
 
@@ -239,6 +247,114 @@ let generer_le_monstre =  ( generer_attaque_2(generer_pv_loot_1 generer_monstre_
 
 let rencontre_malheureuse = fun perso ->
   (combattre perso generer_le_monstre );;
+  
+  
+(*fonction finale plus ou moins*)
+    (* création perso*)
+let demander_nom = fun str ->
+print_string(" Comment voulez-vous appeler votre personnage ? \n");
+let nom= read_line () in str^nom;;
+
+let rec choisir_classe = fun x ->
+print_string("Quelle classe voulez_vous ? \n");
+print_string("1 – Guerrier \n");
+print_string("2- Archer \n");
+print_string("3 – Magicien \n");
+let num_classe = read_int() in
+match num_classe with
+| 1 -> Guerrier
+| 2 -> Archer
+| 3 -> Magicien
+|_ -> choisir_classe x;;
+
+let rec choisir_genre = fun x ->
+print_string("Quelle classe voulez_vous ? \n");
+print_string("1 – Femme \n");
+print_string("2- Homme \n");
+let num_classe = read_int() in
+match num_classe with
+| 1 -> Female
+| 2 -> Male
+|_ -> choisir_genre x;;
+let init_sac = fun x ->
+[{item = Eponge; quantite=0 };{item = Piece; quantite=0 };{item = Cuisse_poulet; quantite=0 }];;
+
+let creation_perso = fun x ->
+ let prenom= demander_nom "" in
+ let classe= choisir_classe x in
+ let genre= choisir_genre x in
+ let sac= init_sac x in
+ let  p1 :personnage ={nom= prenom ; classe= classe ; genre= genre ; pv=20 ; exp=0 ;niveau=1; sac=sac ; speed= speed_perso classe} in
+ affichage_etat_perso p1;;
+
+(* rencontre monstre*)
+let phrase_monstre =fun n ->
+match n with 
+| 0 -> print_string "Vous entrez dans une maison abandonnée et faites tomber une enclume qui réveille le golem endormi \n"
+| 1 -> print_string "Vous entendez du bruit à l'orée de la forêt et vous apercevez un sanglier \n"
+| 2 -> print_string "Vous vous faîtes attaquer par une nuée de moustiques \n";
+| 3 -> print_string "En marchant dans une flaque un slime en sort \n";;
+
+let corres_monstre= fun n ->
+match n with 
+| 0 -> Golem
+| 1 -> Sanglier
+| 2 -> Nuee_de_moustiques
+| 3 -> Slime;;
+
+let rec choix_dv_monstre = fun perso monstre ->
+print_string "Que voulez-vous faire ? \n
+(A) Attaquer \n
+(F) Fuir \n
+(V) Visualiser l'état de votre personnage";
+let rep=read_line () in 
+ match rep with 
+| "a"-> combattre perso monstre
+| "f" -> fuir perso.sac
+| "v" -> affichage_etat_perso perso
+| _ -> choix_dv_monstre perso monstre ;;
+
+    (*fuir*)
+let perte_piece = fun sac q ->
+match sac with
+|[]->[]
+|{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - q}::tl
+|{item=i; quantite=q}::tl-> {item=i; quantite=q}::fuir tl ;;
+
+let fuir = fun perso ->
+let q=Random.int 5 in 
+print_string "Dans cette course folle ";
+print_int q;
+print_string " sont tombées de votre sac !";
+perte_piece perso.sac q;;
+
+(*si pas monstre*)
+let phrase_marche = fun n ->
+match n with 
+| 0 -> print_string "Vous sortez du sentier sans encombre \n"
+| 1 -> print_string "Vous arrivez à l’orée des bois et apercevez une clairière \n"
+| 2 -> print_string "Vous traversez le village sans embûche \n";;
+
+let rec choix_apres_combat= fun perso ->
+print_string "Que voulez-vous faire ? \n
+(C) Continuer votre chemin \n
+(D) Dormir \n
+(M) Manger \n
+(V) Visualier l'état de votre personnage
+(Q) Quitter l'aventure"; 
+let rep=read_line () in
+match rep with
+| "c" -> phrase_marche (Random.int 2)
+| "d" -> (*dormir perso*)
+| "m" -> afficher_msg_manger perso
+| "v" -> affichage_etat_perso perso
+| "q" -> quitter perso
+| _ -> choix_apres_combat perso;;
+
+let quitter = fun perso ->
+print_string "L'état final de votre personnage : \n";
+affichage_etat_perso perso;
+print_string "\n A la revoyure canaille !"
 
 
 (* Appel et lanceur *)
