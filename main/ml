@@ -356,6 +356,14 @@ print_string "L'état final de votre personnage : \n";
 affichage_etat_perso perso;
 print_string "\n A la revoyure canaille !"
 
+let fonction_finale= fun x ->
+let perso=creation_perso ""; in 
+let choix= Random.bool () in 
+if choix 
+then let num_monstre= Random.int 4 in phrase_monstre num_monstre;
+ choix_dv_monstre perso (corres_monstre num_monstre)
+else let num = Random.int 3 in phrase_marche choix;
+choix_apres_combat;
 
 (* Appel et lanceur *)
 
