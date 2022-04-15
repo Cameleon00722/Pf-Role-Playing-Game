@@ -113,7 +113,7 @@ let ligne_4 : personnage -> string = fun perso ->
   ^"| "^string_of_int (get_nb_poulet perso.sac)^" poulets                   |\n"
   ^"| "^string_of_int (get_nb_piece perso.sac)^" pièces                    |\n" ;;
   (*affichage total*)
-let affichage_etat_perso = fun perso ->
+let affichage_etat_perso :personnage -> personnage= fun perso ->
   print_string (separation "-");
   print_string (end_line(ligne_1 perso));
   print_string (separation "-");
@@ -122,7 +122,8 @@ let affichage_etat_perso = fun perso ->
   print_string (end_line(ligne_3 perso));
   print_string (separation "-");
   print_string (end_line(ligne_4 perso));
-  print_string (separation "-");;
+  print_string (separation "-");
+perso;;
 
 let frapper  = fun perso -> match perso.classe with
   | Guerrier -> if(Random.int 100 <30+perso.niveau*5) then 10 else 0
@@ -310,16 +311,16 @@ print_string "Que voulez-vous faire ? \n
 let rep=read_line () in 
  match rep with 
 | "a"-> combattre perso monstre
-| "f" -> fuir perso.sac
+| "f" -> fuir perso
 | "v" -> affichage_etat_perso perso
-| _ -> choix_dv_monstre perso monstre ;;
+| _ -> choix_dv_monstre perso monstre;;
 
     (*fuir*)
 let rec perte_piece = fun sac q ->
 match sac with
 |[]->[]
 |{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - q}::tl
-|{item=i; quantite=q}::tl-> {item=i; quantite=q}::perte_piece tl ;;
+|{item=i; quantite=q}::tl-> {item=i; quantite=q}::perte_piece tl q;;
 
 let fuir: personnage -> personnage = fun perso ->
 let q=Random.int 5 in 
