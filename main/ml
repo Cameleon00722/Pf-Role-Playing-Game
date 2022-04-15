@@ -16,7 +16,7 @@ type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; ex
 
 type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list; speed : int}
 
-let speed_perso  = fun perso -> match classe with
+let speed_perso  = fun classe -> match classe with
   | Guerrier -> 5
   | Archer -> 7
   | Magicien -> 3
