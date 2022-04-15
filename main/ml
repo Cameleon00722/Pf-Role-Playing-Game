@@ -315,18 +315,19 @@ let rep=read_line () in
 | _ -> choix_dv_monstre perso monstre ;;
 
     (*fuir*)
-let perte_piece = fun sac q ->
+let rec perte_piece = fun sac q ->
 match sac with
 |[]->[]
 |{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - q}::tl
-|{item=i; quantite=q}::tl-> {item=i; quantite=q}::fuir tl ;;
+|{item=i; quantite=q}::tl-> {item=i; quantite=q}::perte_piece tl ;;
 
-let fuir = fun perso ->
+let fuir: personnage -> personnage = fun perso ->
 let q=Random.int 5 in 
 print_string "Dans cette course folle ";
 print_int q;
 print_string " sont tombées de votre sac !";
-perte_piece perso.sac q;;
+let nv_sac = perte_piece perso.sac q in {nom=perso.nom; classe=perso.classe; genre=perso.genre;
+ pv=perso.pv; exp= perso.exp; niveau=perso.niveau; sac=nv_sac; speed= perso.speed precision=perso.precision};;
 
 (*si pas monstre*)
 let phrase_marche = fun n ->
