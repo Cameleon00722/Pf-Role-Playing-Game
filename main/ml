@@ -291,12 +291,21 @@ match n with
 | 2 -> print_string "Vous vous faîtes attaquer par une nuée de moustiques \n";
 | 3 -> print_string "En marchant dans une flaque un slime en sort \n";;
 
-let corres_monstre= fun n ->
-match n with 
-| 0 -> Golem
-| 1 -> Sanglier
-| 2 -> Nuee_de_moustiques
-| 3 -> Slime;;
+let affichage_combat= fun perso monstre->
+let nv_perso = combattre perso monstre in
+let nv_item= item_to_string monstre.loot in 
+if nv_perso.pv=0
+then print_string "Votre aventure s'arrête ici, reposez en paix"
+else print_string "Eh bien canaille, la bataille fût rude pourtant vous en sortez en vie. \n
+Mais vous êtes dans un sale état il vous reste ";
+print_int perso.pv;
+print_string " points de vie. \n";
+print_string "Vous êtes présentement au niveau ";
+print_int perso.niveau;
+print_string "";
+print_string "\n Vous avez même gagné 1 ";
+print_string nv_item;
+print_string " bien joué!";;
 
 let rec choix_dv_monstre = fun perso monstre ->
 print_string "Que voulez-vous faire ? \n
@@ -305,7 +314,7 @@ print_string "Que voulez-vous faire ? \n
 (V) Visualiser l'état de votre personnage";
 let rep=read_line () in 
  match rep with 
-| "a"-> combattre perso monstre
+| "a"-> affichage_combattre perso monstre
 | "f" -> fuir perso
 | "v" -> affichage_etat_perso perso
 | _ -> choix_dv_monstre perso monstre;;
@@ -317,13 +326,15 @@ match sac with
 |{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - q}::tl
 |{item=i; quantite=q}::tl-> {item=i; quantite=q}::perte_piece tl q;;
 
-let fuir: personnage -> personnage = fun perso ->
-let q=Random.int 5 in 
-print_string "Dans cette course folle ";
-print_int q;
-print_string " sont tombées de votre sac !";
-let nv_sac = perte_piece perso.sac q in {nom=perso.nom; classe=perso.classe; genre=perso.genre;
- pv=perso.pv; exp= perso.exp; niveau=perso.niveau; sac=nv_sac; speed= perso.speed precision=perso.precision};;
+let fuir = fun perso ->
+let nv_perso ={nom=perso.nom;classe=perso.classe; genre=perso.genre;
+pv=perso.pv; exp= perso.exp; niveau=perso.niveau; sac=perte_piece perso.sac; speed= perso.speed ;precision=precision.perso} in
+  print_string "Dans cette course folle ";
+  print_int 3;
+  print_string " sont tombées de votre sac !";
+print_string nv_perso.nom;
+print_string "\n"
+  ;;
 
 (*si pas monstre*)
 let phrase_marche = fun n ->
