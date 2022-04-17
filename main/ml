@@ -12,14 +12,24 @@ type quantite = int ;;
 type items = { item: item; quantite: quantite} ;;
 
 
-type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list; speed : int} ;;
+type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list; speed : int; precision : int} ;;
 
-type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list; speed : int}
+type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; exp : int; niveau : int; sac : items list; speed : int; precision : int}
+
+                  (* speed sur 10 *)
 
 let speed_perso  = fun classe -> match classe with
   | Guerrier -> 5
   | Archer -> 7
-  | Magicien -> 3
+  | Magicien -> 3;;
+
+
+(* précision sur 100 *)
+let prec_perso  = fun classe -> match classe with
+  | Guerrier -> 30
+  | Archer -> 70
+  | Magicien -> 50
+
 
 (* partie monstre *)
 
@@ -113,7 +123,7 @@ let ligne_4 : personnage -> string = fun perso ->
   ^"| "^string_of_int (get_nb_poulet perso.sac)^" poulets                   |\n"
   ^"| "^string_of_int (get_nb_piece perso.sac)^" pièces                    |\n" ;;
   (*affichage total*)
-let affichage_etat_perso :personnage -> personnage= fun perso ->
+let affichage_etat_perso :personnage -> unit = fun perso ->
   print_string (separation "-");
   print_string (end_line(ligne_1 perso));
   print_string (separation "-");
@@ -123,7 +133,8 @@ let affichage_etat_perso :personnage -> personnage= fun perso ->
   print_string (separation "-");
   print_string (end_line(ligne_4 perso));
   print_string (separation "-");
-perso;;
+;;
+  
 
 let frapper  = fun perso -> match perso.classe with
   | Guerrier -> if(Random.int 100 <30+perso.niveau*5) then 10 else 0
@@ -156,8 +167,8 @@ let rec manger_poulet = fun sac ->
 let manger= fun perso ->
   if (manger_aux perso.sac)
   then if perso.pv<20
-    then (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+2; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed})
-    else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed})
+    then (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+2; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed; precision = perso.precision})
+    else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed; precision = perso.precision})
   else (false,perso);;
 let get_1 (a,_) = a
 (* pour l'affichage de manger*)
@@ -166,8 +177,8 @@ let get_msg_manger=fun bo->
   | true->  "Vous mangez 1 poulet et gagnez 2 points de vie";
   |false->  "Vous n'avez pas de poulet" ;;
   
-  let afficher_msg_manger= fun perso->
-get_msg_manger (get_1 (manger perso))
+let afficher_msg_manger= fun perso->
+  print_string (get_msg_manger (get_1 (manger perso)))
 
 (* combat *)
 
@@ -185,29 +196,33 @@ let rec combien_coup_achever_monstre : personnage -> int -> int = fun p pv ->
 let min = fun a b ->
   if(a>=b) then b else a ;;
 
+let rising = fun p ->
+  p.niveau+1;
+  p.precision + 5
+
 
 let combattre : personnage -> monstre -> personnage = fun p m -> match m.nom with
   | Golem -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
        
         {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=8; 
-         niveau=b ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed}
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then rising p else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed; precision = p.precision};
         
         
   | Nuee_de_moustiques ->let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
        
         {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 2; 
-         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed}
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then rising p else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed; precision = p.precision};
         
         
   | Sanglier -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
        
         {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 4; 
-         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed}
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then rising p else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed; precision = p.precision}
 
   | Slime -> let a=(combien_coup_achever_monstre p m.pv) and b=(combien_coup_achever_perso m p.pv) in  if(b<=a) then failwith "perso_mort" else 
        
         {nom=p.nom ; classe=p.classe;  genre=p.genre ; pv=p.pv - frapper_monstre m * (min a b); exp=p.exp + 4; 
-         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed};;
+         niveau=if((passer_niveau_sup p.pv p.niveau)==true) then rising p else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed; precision = p.precision};;
 
 
 
@@ -247,136 +262,143 @@ let rencontre_malheureuse = fun perso ->
 (*fonction finale plus ou moins*)
     (* création perso*)
 let demander_nom = fun str ->
-print_string(" Comment voulez-vous appeler votre personnage ? \n");
-let nom= read_line () in str^nom;;
+  print_string(" Comment voulez-vous appeler votre personnage ? \n");
+  let nom= read_line () in str^nom;;
 
 let rec choisir_classe = fun x ->
-print_string("Quelle classe voulez_vous ? \n");
-print_string("1 – Guerrier \n");
-print_string("2- Archer \n");
-print_string("3 – Magicien \n");
-let num_classe = read_int() in
-match num_classe with
-| 1 -> Guerrier
-| 2 -> Archer
-| 3 -> Magicien
-|_ -> choisir_classe x;;
+  print_string("Quelle classe voulez_vous ? \n");
+  print_string("1 – Guerrier \n");
+  print_string("2- Archer \n");
+  print_string("3 – Magicien \n");
+  let num_classe = read_int() in
+  match num_classe with
+  | 1 -> Guerrier
+  | 2 -> Archer
+  | 3 -> Magicien
+  |_ -> choisir_classe x;;
 
 let rec choisir_genre = fun x ->
-print_string("Quelle classe voulez_vous ? \n");
-print_string("1 – Femme \n");
-print_string("2- Homme \n");
-let num_classe = read_int() in
-match num_classe with
-| 1 -> Female
-| 2 -> Male
-|_ -> choisir_genre x;;
+  print_string("Quelle classe voulez_vous ? \n");
+  print_string("1 – Femme \n");
+  print_string("2- Homme \n");
+  let num_classe = read_int() in
+  match num_classe with
+  | 1 -> Female
+  | 2 -> Male
+  |_ -> choisir_genre x;;
 
 let init_sac = fun x ->
-[{item = Eponge; quantite=0 };{item = Piece; quantite=20 };{item = Cuisse_poulet; quantite=0 }];;
+  [{item = Eponge; quantite=0 };{item = Piece; quantite=20 };{item = Cuisse_poulet; quantite=0 }];;
 
 let creation_perso = fun x ->
- let prenom= demander_nom "" in
- let classe= choisir_classe x in
- let genre= choisir_genre x in
- let sac= init_sac x in
- let  p1 :personnage ={nom= prenom ; classe= classe ; genre= genre ; pv=20 ; exp=0 ;niveau=1; sac=sac ; speed= speed_perso classe} in
- affichage_etat_perso p1;;
+  let prenom= demander_nom "" in
+  let classe= choisir_classe x in
+  let genre= choisir_genre x in
+  let sac= init_sac x in
+  let  p1 :personnage ={nom= prenom ; classe= classe ; genre= genre ; pv=20 ; exp=0 ;niveau=1; sac=sac; speed= speed_perso classe; precision = prec_perso classe} in
+  affichage_etat_perso p1;;
 
 (* rencontre monstre*)
 let phrase_monstre =fun n ->
-match n with 
-| 0 -> print_string "Vous entrez dans une maison abandonnée et faites tomber une enclume qui réveille le golem endormi \n"
-| 1 -> print_string "Vous entendez du bruit à l'orée de la forêt et vous apercevez un sanglier \n"
-| 2 -> print_string "Vous vous faîtes attaquer par une nuée de moustiques \n";
-| 3 -> print_string "En marchant dans une flaque un slime en sort \n";;
+  match n with 
+  | 0 -> print_string "Vous entrez dans une maison abandonnée et faites tomber une enclume qui réveille le golem endormi \n"
+  | 1 -> print_string "Vous entendez du bruit à l'orée de la forêt et vous apercevez un sanglier \n"
+  | 2 -> print_string "Vous vous faîtes attaquer par une nuée de moustiques \n";
+  | 3 -> print_string "En marchant dans une flaque un slime en sort \n";;
 
-let affichage_combat= fun perso monstre->
-let nv_perso = combattre perso monstre in
-let nv_item= item_to_string monstre.loot in 
-if nv_perso.pv=0
-then print_string "Votre aventure s'arrête ici, reposez en paix"
-else print_string "Eh bien canaille, la bataille fût rude pourtant vous en sortez en vie. \n
-Mais vous êtes dans un sale état il vous reste ";
-print_int perso.pv;
-print_string " points de vie. \n";
-print_string "Vous êtes présentement au niveau ";
-print_int perso.niveau;
-print_string "";
-print_string "\n Vous avez même gagné 1 ";
-print_string nv_item;
-print_string " bien joué!";;
-
-let rec choix_dv_monstre = fun perso monstre ->
-print_string "Que voulez-vous faire ? \n
-(A) Attaquer \n
-(F) Fuir \n
-(V) Visualiser l'état de votre personnage";
-let rep=read_line () in 
- match rep with 
-| "a"-> affichage_combattre perso monstre
-| "f" -> fuir perso
-| "v" -> affichage_etat_perso perso
-| _ -> choix_dv_monstre perso monstre;;
 
     (*fuir*)
-let rec perte_piece = fun sac q ->
-match sac with
-|[]->[]
-|{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - q}::tl
-|{item=i; quantite=q}::tl-> {item=i; quantite=q}::perte_piece tl q;;
+let rec aux =fun sac ->
+  match sac with
+  |[]->[]
+  |{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - 3}::tl
+  |elem::tl-> elem::aux tl;;
+let perte_piece = fun perso ->
+  aux perso.sac;;
 
 let fuir = fun perso ->
-let nv_perso ={nom=perso.nom;classe=perso.classe; genre=perso.genre;
-pv=perso.pv; exp= perso.exp; niveau=perso.niveau; sac=perte_piece perso.sac; speed= perso.speed ;precision=precision.perso} in
+  let nv_perso ={nom="ee";classe=perso.classe; genre=perso.genre;
+                 pv=perso.pv; exp= perso.exp; niveau=perso.niveau; sac=perte_piece perso; speed= perso.speed; precision= perso.precision} in
   print_string "Dans cette course folle ";
   print_int 3;
   print_string " sont tombées de votre sac !";
-print_string nv_perso.nom;
-print_string "\n"
-  ;;
+  print_string nv_perso.nom;
+  print_string "\n"
+;;
+
+let affichage_combat= fun perso monstre->
+  let nv_perso = combattre perso monstre in
+  let nv_item= item_to_string monstre.loot in 
+  if nv_perso.pv=0
+  then print_string "Votre aventure s'arrête ici, reposez en paix"
+  else print_string "Eh bien canaille, la bataille fût rude pourtant vous en sortez en vie. \n
+Mais vous êtes dans un sale état il vous reste ";
+  print_int perso.pv;
+  print_string " points de vie. \n";
+  print_string "Vous êtes présentement au niveau ";
+  print_int perso.niveau;
+  print_string "";
+  print_string "\n Vous avez même gagné 1 ";
+  print_string nv_item;
+  print_string " bien joué!";;
+
+let rec choix_dv_monstre = fun perso monstre ->
+  print_string "Que voulez-vous faire ? \n
+(A) Attaquer \n
+(F) Fuir \n
+(V) Visualiser l'état de votre personnage";
+  let rep=read_line () in 
+  match rep with 
+  | "a"-> affichage_combat perso monstre
+  | "f" -> fuir perso
+  | "v" -> affichage_etat_perso perso
+  | _ -> choix_dv_monstre perso monstre;;
+
+
 
 (*si pas monstre*)
 let phrase_marche = fun n ->
-match n with 
-| 0 -> print_string "Vous sortez du sentier sans encombre \n"
-| 1 -> print_string "Vous arrivez à l’orée des bois et apercevez une clairière \n"
-| 2 -> print_string "Vous traversez le village sans embûche \n";;
+  match n with 
+  | 0 -> print_string "Vous sortez du sentier sans encombre \n"
+  | 1 -> print_string "Vous arrivez à l’orée des bois et apercevez une clairière \n"
+  | 2 -> print_string "Vous traversez le village sans embûche \n";;
+
+let quitter = fun perso ->
+  print_string "L'état final de votre personnage : \n";
+  affichage_etat_perso perso;
+  print_string "\n A la revoyure canaille !"
 
 let rec choix_apres_combat= fun perso ->
-print_string "Que voulez-vous faire ? \n
+  print_string "Que voulez-vous faire ? \n
 (C) Continuer votre chemin \n
 (D) Dormir \n
 (M) Manger \n
 (V) Visualier l'état de votre personnage
 (Q) Quitter l'aventure"; 
-let rep=read_line () in
-match rep with
-| "c" -> phrase_marche (Random.int 2)
-| "d" -> (*dormir perso*)
-| "m" -> afficher_msg_manger perso
-| "v" -> affichage_etat_perso perso
-| "q" -> quitter perso
-| _ -> choix_apres_combat perso;;
+  let rep=read_line () in
+  match rep with
+  | "c" -> phrase_marche (Random.int 2)
+  | "d" -> print_string "Que voulez-vous faire ? " (*dormir à appeler*)
+  | "m" -> afficher_msg_manger perso
+  | "v" -> affichage_etat_perso perso
+  | "q" -> quitter perso
+  | _ -> choix_apres_combat perso;;
 
-let quitter = fun perso ->
-print_string "L'état final de votre personnage : \n";
-affichage_etat_perso perso;
-print_string "\n A la revoyure canaille !"
+
 
 let fonction_finale= fun x ->
-let perso=creation_perso ""; in 
-let choix= Random.bool () in 
-if choix 
-then let num_monstre= Random.int 4 in phrase_monstre num_monstre;
- choix_dv_monstre perso (corres_monstre num_monstre)
-else let num = Random.int 3 in phrase_marche choix;
-choix_apres_combat;
+  let perso=creation_perso ""; in 
+  let choix= Random.bool () in 
+  if choix 
+  then let num_monstre= Random.int 4 in phrase_monstre num_monstre;
+    choix_dv_monstre perso (generer_monstre_0)
+  else let num = Random.int 3 in phrase_marche num;
+    choix_apres_combat perso;;
 
 (* Appel et lanceur *)
 
 let mon_monstre = {nom=Golem; pv = 25 ; attaque = 1 ; loot= Eponge ; nombre = 10; speed = 1};;
 
-let personnage = {nom = "ani" ; classe = Guerrier ;  genre = Female  ; pv = 100000 ; exp = 0; niveau = 0; sac = []; speed = 1 } ;;
+let personnage = {nom = "ani" ; classe = Guerrier ;  genre = Female  ; pv = 100000 ; exp = 0; niveau = 0; sac = []; speed = 1; precision = 1 } ;;
 
 affichage_etat_perso personnage;;
