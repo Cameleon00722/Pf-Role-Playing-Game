@@ -210,12 +210,6 @@ let combattre : personnage -> monstre -> personnage = fun p m -> match m.nom wit
          niveau=if((passer_niveau_sup p.pv p.niveau)==true) then p.niveau+1 else p.niveau ; sac=p.sac@[{ item=m.loot; quantite=1}]; speed = p.speed};;
 
 
-let rec fuir = fun sac ->
-  match sac with
-  |[]->[]
-  |{item=i; quantite=q}::tl when i=Piece->{item=i; quantite=q - Random.int q}:: fuir tl
-  |{item=i; quantite=q}::tl-> {item=i; quantite=q}::fuir tl ;;
-
 
 let generer_type_monstre = fun a -> match a with
   | 0 -> Golem
@@ -277,8 +271,9 @@ match num_classe with
 | 1 -> Female
 | 2 -> Male
 |_ -> choisir_genre x;;
+
 let init_sac = fun x ->
-[{item = Eponge; quantite=0 };{item = Piece; quantite=0 };{item = Cuisse_poulet; quantite=0 }];;
+[{item = Eponge; quantite=0 };{item = Piece; quantite=20 };{item = Cuisse_poulet; quantite=0 }];;
 
 let creation_perso = fun x ->
  let prenom= demander_nom "" in
