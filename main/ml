@@ -184,7 +184,7 @@ let rec manger_poulet = fun sac ->
  
 let manger= fun perso ->
   if (manger_aux perso.sac)
-  then if perso.pv<20
+  then if perso.pv<19
     then (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+2; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed; precision = perso.precision})
     else (true,{nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed;  precision = perso.precision})
   else (false,perso);;
