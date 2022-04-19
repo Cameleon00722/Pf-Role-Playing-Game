@@ -448,47 +448,6 @@ let rec choix_dv_monstre = fun perso monstre ->
   | _ -> choix_dv_monstre perso monstre;;
  
  
- 
-(*si pas monstre*)
-(*si pas monstre*)
-let phrase_marche :int -> personnage -> personnage= fun n perso->
-  match n with 
-  | 0 -> print_string "Vous sortez du sentier sans encombre \n"; perso
-  | 1 -> print_string "Vous arrivez à l’orée des bois et apercevez une clairière \n";perso
-  | 2 -> print_string "Vous traversez le village sans embûche \n"; perso 
-;;
-
-let quitter = fun perso ->
-  print_string "L'état final de votre personnage : \n";
-  affichage_etat_perso perso;
-  print_string "\n A la revoyure canaille !";
-  perso;;
-
-let dormir : personnage -> personnage = fun perso ->
-  perso;;
-
-let rec choix_apres_combat= fun perso -> 
-  print_string "Que voulez-vous faire ? \n
-(C) Continuer votre chemin \n
-(D) Dormir \n
-(M) Manger \n
-(V) Visualier l'état de votre personnage
-(Q) Quitter l'aventure"; 
-  let rep=read_line () in
-  match rep with
-  | "c" -> phrase_marche (Random.int 2) perso
-  | "d" -> dormir perso
-  | "m" -> afficher_msg_manger perso 
-  | "v" -> affichage_etat_perso perso
-  | "q" -> quitter perso
-  | _ -> choix_apres_combat perso;;
-
-let event_apres_combat = fun perso ->
-  let choix= Random.bool () in
-  if choix 
-  then rencontre_malheureuse perso
-  else choix_apres_combat perso;;
- 
 let fonction_finale= fun x ->
   let perso=creation_perso ""; in
   affichage_etat_perso perso;
@@ -499,10 +458,10 @@ let fonction_finale= fun x ->
   else let num = Random.int 3 in phrase_marche num;
     choix_apres_combat perso;;
  
-(* Appel et lanceur
+(* Appel et lanceur*)
  
 let mon_monstre = {nom=Golem; pv = 25 ; attaque = 1 ; loot= Eponge ; nombre = 10; speed = 1};;
-*)
+
 let personnage = {nom = "ani" ; classe = Guerrier ;  genre = Female  ; pv = 100000 ; exp = 0; niveau = 0; sac = []; speed = 1; precision = 1 } ;;
  
 affichage_etat_perso personnage;;
