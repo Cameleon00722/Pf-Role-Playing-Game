@@ -219,7 +219,10 @@ let min = fun a b ->
  
 let rising = fun p ->
   p.niveau+1;
-  p.precision + 5
+  if p.precision<96 then
+    p.precision + 5
+  else
+    p.precision+0;;
  
  
 let combattre : personnage -> monstre -> personnage = fun p m -> match m.nom with
