@@ -7,7 +7,7 @@ Random.self_init();;
  
 type genre = Male | Female
 type classe = Guerrier | Archer | Magicien
-type item = | Eponge | Piece | Cuisse_poulet | Soin | Faiblesse;;
+type item = | Eponge | Piece | Cuisse_poulet | Soin | Faiblesse | Plastron;;
 type quantite = int ;;
 type items = { item: item; quantite: quantite} ;;
  
@@ -59,6 +59,7 @@ let item_to_string : item -> string = fun it->
   | Cuisse_poulet -> "poulets" 
   | Soin -> "potion de soin"
   | Faiblesse -> "potion de faiblesse"
+  | Plastron -> "armure"
  
 let rec afficher_contenu_sac = fun sac ->
   match sac with
@@ -131,6 +132,13 @@ let rec get_nb_faible = fun sac ->
   |[]-> 0
   |{item=Faiblesse; quantite=q}::_->q
   |{item=_; quantite=_}::tl-> get_nb_faible tl ;;
+  
+let rec get_nb_plastron = fun sac ->
+  match sac with
+  |[]-> 0
+  |{item=Plastron; quantite=q}::_->q
+  |{item=_; quantite=_}::tl-> get_nb_plastron tl ;;
+  
  
 let ligne_4 : personnage -> string = fun perso ->
   "| Sac                         |\n"
@@ -138,7 +146,8 @@ let ligne_4 : personnage -> string = fun perso ->
   ^"| "^string_of_int (get_nb_poulet perso.sac)^" poulets                   |\n"
   ^"| "^string_of_int (get_nb_piece perso.sac)^" pièces                    |\n" 
   ^"| "^string_of_int (get_nb_soin perso.sac)^" soin                      |\n" 
-  ^"| "^string_of_int (get_nb_faible perso.sac)^" faiblesse                 |\n" ;;
+  ^"| "^string_of_int (get_nb_faible perso.sac)^" faiblesse                 |\n" 
+  ^"| "^string_of_int (get_nb_plastron perso.sac)^" armure                     |\n" ;;
 
   (*affichage total*)
 let affichage_etat_perso = fun perso ->
@@ -332,11 +341,7 @@ let rencontre_malheureuse = fun perso ->
   
  
 type article = {nom : item ; prix : int ;  desc : string} ;;
- 
-let art_prix  = fun item -> match item with
-  | Soin -> 10
-  | Faiblesse -> 10
-  | Cuisse_poulet -> 3;; 
+  
  
 (* gestion achat potion soin *)
 let rec gest_soin =fun sac ->
@@ -368,7 +373,7 @@ let rec gest_faible =fun sac ->
   |[]->[]
   |{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - 10}::tl
   |{item=i; quantite=qtte}::tl when i=Faiblesse->{item=i; quantite=qtte + 1}::tl
-  |elem::tl-> elem::gest_soin tl;; 
+  |elem::tl-> elem::gest_faible tl;; 
  
 let payer_faible = fun perso ->
   if (moula_pot perso.sac) then
@@ -382,7 +387,7 @@ let rec gest_poule =fun sac ->
   |[]->[]
   |{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - 3}::tl
   |{item=i; quantite=qtte}::tl when i=Cuisse_poulet->{item=i; quantite=qtte + 1}::tl
-  |elem::tl-> elem::gest_soin tl;;
+  |elem::tl-> elem::gest_poule tl;;
 
 let rec moula_poule =fun sac->
   match sac with
@@ -398,21 +403,46 @@ let payer_poule = fun perso ->
   else
     perso.sac;;
 
+  (* gestion achat sword  *)
+let rec gest_plastron =fun sac ->
+  match sac with
+  |[]->[]
+  |{item=i; quantite=qtte}::tl when i=Piece->{item=i; quantite=qtte - 20}::tl
+  |{item=i; quantite=qtte}::tl when i=Plastron->{item=i; quantite=qtte + 1}::tl
+  |elem::tl-> elem::gest_plastron tl;;
+
+let rec moula_plastron =fun sac->
+  match sac with
+  |[]->false
+  |{item=i; quantite=q}::tl when i=Piece-> if q>19
+      then true
+      else false
+  |{item=i; quantite=q}::tl-> moula_plastron tl ;;
+ 
+let payer_plastron = fun perso ->
+  if (moula_poule perso.sac) then 
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+10; exp=perso.exp; niveau=perso.niveau; sac= gest_plastron perso.sac; speed = perso.speed; precision = perso.precision} 
+  else
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= perso.sac; speed = perso.speed; precision = perso.precision};;
+
 
 
 
 let rec magasin = fun perso  ->
   print_string "Que voulez-vous acheter ? \n
-(a) potion soin \n 
-(b) potion de faiblesse \n 
-(c) pilon de poulet";
+(a) potion soin (10 pièces) \n 
+(b) potion de faiblesse (10 pièces)\n 
+                (c) épée (20 pièces) \n
+(d) pilon de poulet (3 pièces)";
   let rep=read_line () in
   match rep with
   | "a" -> payer_soin perso
   | "b" -> payer_faible perso
-  | "c" -> payer_poule perso
+  | "c" -> payer_plastron perso
+  | "d" -> payer_poule perso
   | _ -> magasin perso;;
-
+  
+  
 (*fonction finale plus ou moins*)
     (* création perso*)
 let demander_nom = fun str ->
