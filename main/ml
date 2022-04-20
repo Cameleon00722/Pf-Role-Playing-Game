@@ -494,12 +494,6 @@ let rec choix_apres_combat= fun perso ->
   | "q" -> quitter perso
   | _ -> choix_apres_combat perso;;
  
-let event_apres_combat = fun perso ->
-  let choix= Random.bool () in
-  if choix
-  then rencontre_malheureuse perso
-  else choix_apres_combat perso;;
- 
  
 (* rencontre monstre*)
 let phrase_monstre =fun n ->
