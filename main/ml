@@ -520,7 +520,7 @@ let perte_piece = fun perso ->
   aux perso.sac;;
  
 let fuir = fun perso ->
-  let nv_perso ={nom="perso.nom";classe=perso.classe; genre=perso.genre;
+  let nv_perso ={nom=perso.nom;classe=perso.classe; genre=perso.genre;
                  pv=perso.pv; exp= perso.exp; niveau=perso.niveau; sac=perte_piece perso; speed= perso.speed; precision= perso.precision} in
   print_string "Dans cette course folle ";
   print_int 3;
