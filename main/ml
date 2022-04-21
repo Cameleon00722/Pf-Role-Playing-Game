@@ -6,7 +6,7 @@ Random.self_init();;
 (* création personnage *)
  
 type genre = Male | Female
-type classe = Guerrier | Archer | Magicien
+type classe = Guerrier | Archer | Magicien | Assassin
 type item = | Eponge | Piece | Cuisse_poulet | Soin | Faiblesse | Plastron;;
 type quantite = int ;;
 type items = { item: item; quantite: quantite} ;;
@@ -21,7 +21,8 @@ type personnage = {nom : string ; classe : classe ;  genre : genre ; pv: int; ex
 let speed_perso  = fun classe -> match classe with
   | Guerrier -> 5
   | Archer -> 7
-  | Magicien -> 3;;
+  | Magicien -> 3
+  | Assassin -> 9;;
  
  
 (* précision sur 100 *)
@@ -29,6 +30,7 @@ let prec_perso  = fun classe -> match classe with
   | Guerrier -> 30
   | Archer -> 70
   | Magicien -> 50
+  | Assassin -> 60;;
  
  
 (* partie monstre *)
@@ -90,10 +92,11 @@ let classe_genree = fun perso ->
     | Guerrier -> "Guerrier"
     | Archer -> "Archer"
     | Magicien -> "Magicien"
+    | Assassin -> "Assassin"
   else match perso.classe with
     | Guerrier -> "Guerrière"
     | Archer -> "Archère"
-    | Magicien -> "Magicienne" ;;
+    | Assassin -> "Assassin" ;;
  
 let ligne_1 : personnage -> string = fun perso ->
   "| "^perso.nom^" | "^(classe_genree perso)^"  niveau  "^(string_of_int perso.niveau)^"  |"
@@ -132,13 +135,12 @@ let rec get_nb_faible = fun sac ->
   |[]-> 0
   |{item=Faiblesse; quantite=q}::_->q
   |{item=_; quantite=_}::tl-> get_nb_faible tl ;;
-  
+
 let rec get_nb_plastron = fun sac ->
   match sac with
   |[]-> 0
   |{item=Plastron; quantite=q}::_->q
   |{item=_; quantite=_}::tl-> get_nb_plastron tl ;;
-  
  
 let ligne_4 : personnage -> string = fun perso ->
   "| Sac                         |\n"
@@ -167,7 +169,8 @@ let affichage_etat_perso = fun perso ->
 let frapper  = fun perso -> match perso.classe with
   | Guerrier -> if(Random.int 100 <30+perso.niveau*5) then 10 else 0
   | Archer -> if(Random.int 100 <70+perso.niveau*5) then 4 else 0
-  | Magicien -> if(Random.int 100 <50+perso.niveau*5) then 5 else 0;;
+  | Magicien -> if(Random.int 100 <50+perso.niveau*5) then 5 else 0
+  | Assassin -> if(Random.int 100 <60+perso.niveau*5) then 9 else 0;; 
  
 let frapper_monstre = fun monstre -> match monstre.nom with
   | Golem -> 4
@@ -361,9 +364,9 @@ let rec moula_pot =fun sac->
  
 let payer_soin = fun perso ->
   if (moula_pot perso.sac) then
-    gest_soin perso.sac
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= gest_soin perso.sac; speed = perso.speed; precision = perso.precision} 
   else
-    perso.sac;;
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= perso.sac; speed = perso.speed; precision = perso.precision};;
  
 
 (* gestion achat popo faiblesse *)
@@ -377,9 +380,9 @@ let rec gest_faible =fun sac ->
  
 let payer_faible = fun perso ->
   if (moula_pot perso.sac) then
-    gest_faible perso.sac
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= gest_faible perso.sac; speed = perso.speed; precision = perso.precision} 
   else
-    perso.sac;;
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= perso.sac; speed = perso.speed; precision = perso.precision};;
 
   (* gestion achat poulet  *)
 let rec gest_poule =fun sac ->
@@ -399,9 +402,9 @@ let rec moula_poule =fun sac->
  
 let payer_poule = fun perso ->
   if (moula_poule perso.sac) then
-    gest_poule perso.sac
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= gest_poule perso.sac; speed = perso.speed; precision = perso.precision} 
   else
-    perso.sac;;
+    {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= perso.sac; speed = perso.speed; precision = perso.precision};;
 
   (* gestion achat sword  *)
 let rec gest_plastron =fun sac ->
@@ -419,14 +422,29 @@ let rec moula_plastron =fun sac->
       else false
   |{item=i; quantite=q}::tl-> moula_plastron tl ;;
  
-let payer_plastron = fun perso ->
-  if (moula_poule perso.sac) then 
+let payer_plastron  : personnage -> personnage = fun perso ->
+  if (moula_plastron perso.sac) then 
     {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+10; exp=perso.exp; niveau=perso.niveau; sac= gest_plastron perso.sac; speed = perso.speed; precision = perso.precision} 
   else
     {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac= perso.sac; speed = perso.speed; precision = perso.precision};;
 
 
+(* utilisation potion de soin *)
 
+let rec soin_perso =fun sac->
+  match sac with
+  |[]->false
+  |{item=i; quantite=q}::tl when i=Soin-> if q>0
+      then true
+      else false
+  |{item=i; quantite=q}::tl-> soin_perso tl ;;
+
+let use_soin= fun perso ->
+  if (soin_perso perso.sac)
+  then if perso.pv<20
+    then {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv+5; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed; precision = perso.precision}
+    else {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed;  precision = perso.precision}
+  else {nom=perso.nom; classe= perso.classe; genre=perso.genre; pv=perso.pv; exp=perso.exp; niveau=perso.niveau; sac=(manger_poulet perso.sac); speed = perso.speed;  precision = perso.precision};;
 
 let rec magasin = fun perso  ->
   print_string "Que voulez-vous acheter ? \n
@@ -441,8 +459,7 @@ let rec magasin = fun perso  ->
   | "c" -> payer_plastron perso
   | "d" -> payer_poule perso
   | _ -> magasin perso;;
-  
-  
+
 (*fonction finale plus ou moins*)
     (* création perso*)
 let demander_nom = fun str ->
@@ -524,6 +541,12 @@ let rec choix_apres_combat= fun perso ->
   | "q" -> quitter perso
   | _ -> choix_apres_combat perso;;
  
+let event_apres_combat = fun perso ->
+  let choix= Random.bool () in
+  if choix
+  then rencontre_malheureuse perso
+  else choix_apres_combat perso;;
+ 
  
 (* rencontre monstre*)
 let phrase_monstre =fun n ->
@@ -544,7 +567,7 @@ let perte_piece = fun perso ->
   aux perso.sac;;
  
 let fuir = fun perso ->
-  let nv_perso ={nom=perso.nom;classe=perso.classe; genre=perso.genre;
+  let nv_perso ={nom="perso.nom";classe=perso.classe; genre=perso.genre;
                  pv=perso.pv; exp= perso.exp; niveau=perso.niveau; sac=perte_piece perso; speed= perso.speed; precision= perso.precision} in
   print_string "Dans cette course folle ";
   print_int 3;
@@ -588,6 +611,38 @@ let rec choix_dv_monstre = fun perso monstre ->
   | "f" -> fuir perso
   | _ -> choix_dv_monstre perso monstre;;
 
+(*si pas monstre*)
+(*si pas monstre*)
+let phrase_marche :int -> personnage -> personnage= fun n perso->
+  match n with 
+  | 0 -> print_string "Vous sortez du sentier sans encombre \n"; perso
+  | 1 -> print_string "Vous arrivez à l’orée des bois et apercevez une clairière \n";perso
+  | 2 -> print_string "Vous traversez le village sans embûche \n"; perso 
+;;
+
+let quitter = fun perso ->
+  print_string "L'état final de votre personnage : \n";
+  affichage_etat_perso perso;
+  print_string "\n A la revoyure canaille !";
+  perso;;
+
+
+let rec choix_apres_combat= fun perso -> 
+  print_string "Que voulez-vous faire ? \n
+(C) Continuer votre chemin \n
+(D) Dormir \n
+(M) Manger \n
+(V) Visualier l'état de votre personnage
+(Q) Quitter l'aventure"; 
+  let rep=read_line () in
+  match rep with
+  | "c" -> phrase_marche (Random.int 2) perso
+  | "d" -> dormir perso
+  | "m" -> afficher_msg_manger perso 
+  | "v" -> affichage_etat_perso perso
+  | "q" -> quitter perso
+  | _ -> choix_apres_combat perso;;
+
 
 let rec jouer= fun perso ->
   if perso.niveau<10
@@ -616,6 +671,7 @@ let fonction_finale= fun x ->
   affichage_etat_perso perso;
   print_string "Que l'aventure commence canaille !";
   jouer perso;;
+
 
 
 (* Appel et lanceur
