@@ -96,6 +96,7 @@ let classe_genree = fun perso ->
   else match perso.classe with
     | Guerrier -> "Guerrière"
     | Archer -> "Archère"
+    | Magicien -> "Magicienne"
     | Assassin -> "Assassin" ;;
  
 let ligne_1 : personnage -> string = fun perso ->
