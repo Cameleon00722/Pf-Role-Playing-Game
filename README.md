@@ -55,9 +55,9 @@ plusieurs choix s'offre à vous :
  
 Les combats se répétent jusqu'à ce que le personnage atteigne le niveau 10, après cela il aura échapé à ce cycle infernal.
  
- De plus si vous réalisez une rencontre ( uniquement que vous pouvez fuir) vous aurez la possibilité d'appeler un ami parmis une liste de 3 personnage possible pour vous aidez à vaincre ce monstre
+ De plus si vous réalisez une rencontre ( uniquement que vous pouvez fuir) vous aurez la possibilité d'appeler un ami parmis une liste de 3 personnages possible pour vous aidez à vaincre ce monstre
  
- Ceci se répéte jusqu'à atteindre le niveau 10 pour pouvoir échapé à ce cycle infernal
+ Ceci se répéte jusqu'à atteindre le niveau 10 pour pouvoir échaper à ce cycle infernal
  
  Extensions :
  Les extensions sont les suivantes :
