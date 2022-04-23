@@ -12,19 +12,19 @@ Quentin Gavois était en charge de la partie monstre ce qui comprend :
   - combattre et ses fonctions auxiliaires
   
  Mathéo Grillon était en charge de la Gestion du personnage et du magasin ce qui comprend
-    - type personnage
-    - Mise en place des paramètre monstre et personnage
-    - Mise en place du magasin et des items à l'achat ( potion de soin
-    - Ajout de monstre (slime), de la classe assassin, du systèmes d'armure et de potion
-    - Mise en place du travail collaboratif : Mettre le code en commun et mettre en place un modèle rpg viable
+  - type personnage
+  - Mise en place des paramètre monstre et personnage
+  - Mise en place du magasin et des items à l'achat ( potion de soin
+  - Ajout de monstre (slime), de la classe assassin, du systèmes d'armure et de potion
+  - Mise en place du travail collaboratif : Mettre le code en commun et mettre en place un modèle rpg viable
 
  Anya Geairon était en charge du personnage ce qui comprend
-    - Affichage sac
-    - Affichage etat perso
-    - Manger 
-   (- Combat en duo) 
-    - Fonction finale en partie avec création perso et les choix 
-    - Les affichages des combats, de manger et dormir
+  - Affichage sac
+  - Affichage etat perso
+  - Manger 
+  - Combat en duo)
+  - Fonction finale en partie avec création perso et les choix 
+  - Les affichages des combats, de manger et dormir
     
     
     
