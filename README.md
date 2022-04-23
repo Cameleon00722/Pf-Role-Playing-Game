@@ -53,7 +53,7 @@ plusieurs choix s'offre à vous :
  Lorsqu'un combat se lance, celui-ci se joue de manière automatique. Le plus rapide des belligérants porte le 1er coup
  puis les coups s'enchaînent jusqu'à la mort d'un des bélligérants.
  
-Les combats se répétent jusqu'à ce que le personnage atteigne le niveau 10, après cela il aura échapé à ce cycle infernal.
+Les combats se répétent jusqu'à ce que le personnage atteigne le niveau 10, après cela il aura échappé à ce cycle infernal.
  
  De plus si vous réalisez une rencontre ( uniquement que vous pouvez fuir) vous aurez la possibilité d'appeler un ami parmis une liste de 3 personnages possible pour vous aidez à vaincre ce monstre
  
