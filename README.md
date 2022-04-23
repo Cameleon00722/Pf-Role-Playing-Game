@@ -44,11 +44,11 @@ La fiche détaillée de votre personnage apparaît et un combat se lance immédi
 Si vous survivez à ce combat dantesque,
 
 plusieurs choix s'offre à vous :
-> continuer votre chemin avec une chance de rencontrer des monstres sur le trajet (possibilité d'obtenir des butins ou de mourir)
-> aller dormir pour récupérer de l'énergie (ou périr si vous êtes malchanceux)
-> manger un morceau pour restaurer son énergie
-> faire un tour au magasin pour acheter des items de soin (potion de soin et poulet ), une potion de faiblesse (pour réduire la puissance des monstres) ou une armure (pour augmenter son maximum de points de vie)
-> dernière option, utiliser vos éventuelles potions de soin.
+- continuer votre chemin avec une chance de rencontrer des monstres sur le trajet (possibilité d'obtenir des butins ou de mourir)
+- aller dormir pour récupérer de l'énergie (ou périr si vous êtes malchanceux)
+- manger un morceau pour restaurer son énergie
+- faire un tour au magasin pour acheter des items de soin (potion de soin et poulet ), une potion de faiblesse (pour réduire la puissance des monstres) ou une armure (pour augmenter son maximum de points de vie)
+- dernière option, utiliser vos éventuelles potions de soin.
     
  Lorsqu'un combat se lance, celui-ci se joue de manière automatique. Le plus rapide des belligérants porte le 1er coup
  puis les coups s'enchaînent jusqu'à la mort d'un des bélligérants.
