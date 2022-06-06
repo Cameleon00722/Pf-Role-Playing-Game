@@ -1,7 +1,7 @@
 # Pf-Role-Playing-Game
 
-Devoir de pf orléans 2022 : groupe TPC5
-Quentin Gavois, Mathéo Grillon, Anya Geairon
+Devoir de pf  : groupe TPC5
+
 
 ## Répartition du travail dans le groupe
 
